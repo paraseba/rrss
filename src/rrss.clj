@@ -20,40 +20,44 @@
   (let [string-map (into {"__" ""} (map #(vec (map as-str %)) data))]
     (.hmset connection key string-map)))
 
-(defn- read-session* [key]
+(defn- read-session* [config key]
   (fn [connection]
     (if (nil? key)
       {}
-      (let [m (.hgetAll connection key)]
+      (let [m (.hgetAll connection ((config :map-key) key))]
         (dissoc (into {} m) "__")))))
 
-(defn- delete-session* [key]
+(defn- delete-session* [config key]
   (fn [connection]
     (when-not (nil? key)
-      (.del connection (into-array String [key])))
+      (.del connection (into-array String [((config :map-key) key)])))
     nil))
 
-(defn- write-session* [key data]
+(defn- write-session* [config key data]
   (let [key (or key (str (UUID/randomUUID)))]
     (fn [connection]
-      (hmset connection key data)
+      (hmset connection ((config :map-key) key) data)
       key)))
 
-(deftype RedisStore [pool]
+(deftype RedisStore [pool config]
   SessionStore
   (read-session [_ key]
-    (with-connection pool (read-session* key)))
+    (with-connection pool (read-session* config key)))
 
   (write-session [_ key data]
-    (with-connection pool (write-session* key data)))
+    (with-connection pool (write-session* config key data)))
 
   (delete-session [_ key]
-    (with-connection pool (delete-session* key))))
+    (with-connection pool (delete-session* config key))))
+
+(defn- add-prefix [prefix]
+  (fn [key] (str prefix key)))
 
 (defn redis-store
   ([] (redis-store {}))
-  ([{:keys (host port) :or {host "localhost" port 6379}}]
+  ([{:keys (host port map-key)
+     :or {host "localhost" port 6379 map-key (add-prefix "sessions:")}}]
    (let [pool (JedisPool.  (org.apache.commons.pool.impl.GenericObjectPool$Config.)
                           host
                           port)]
-     (RedisStore. pool))))
+     (RedisStore. pool {:map-key map-key}))))

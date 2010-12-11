@@ -43,7 +43,7 @@
     (write-session store "deadman" {1 2})
     (delete-session store "deadman")
     (is (= {} (read-session store "deadman")))
-    (is (= nil (delete-session store nil)))))
+    (is (nil? (delete-session store nil)))))
 
 (deftest test-read-session
   (is (= {} (read-session (redis-store) "unknown")))
@@ -52,4 +52,12 @@
 (deftest test-return-types
   (let [store (redis-store)]
     (is (= "foo" (write-session store "foo" {:hi :bye})))
-    (is (= nil (delete-session store "foo")))))
+    (is (nil? (delete-session store "foo")))))
+
+(deftest test-redis-keys
+  (write-session (redis-store) "foo" {:hi :bye})
+  (is (= "hash" (.type (Jedis. "localhost") "sessions:foo")))
+
+  (write-session (redis-store {:map-key #(str % ":suffix")}) "bar" {:hi :bye})
+  (is (= "hash" (.type (Jedis. "localhost") "bar:suffix")))
+  (is (= "none" (.type (Jedis. "localhost") "sessions:bar"))))
