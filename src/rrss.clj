@@ -22,12 +22,15 @@
 
 (defn- read-session* [key]
   (fn [connection]
-    (let [m (.hgetAll connection key)]
-      (dissoc (into {} m) "__"))))
+    (if (nil? key)
+      {}
+      (let [m (.hgetAll connection key)]
+        (dissoc (into {} m) "__")))))
 
 (defn- delete-session* [key]
   (fn [connection]
-    (.del connection (into-array String [key]))
+    (when-not (nil? key)
+      (.del connection (into-array String [key])))
     nil))
 
 (defn- write-session* [key data]
