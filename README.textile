@@ -14,7 +14,7 @@ ToDo....
 
 h3. Installation
 
-Add [rrss/rrss "0.1.0-SNAPSHOT"] to your leiningen dependencies
+Add [rrss/rrss "0.2.0-SNAPSHOT"] to your leiningen dependencies
 
 h3. License
 

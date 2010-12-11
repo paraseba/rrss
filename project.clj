@@ -1,4 +1,4 @@
-(defproject rrss "0.1.0-SNAPSHOT"
+(defproject rrss "0.2.0-SNAPSHOT"
   :description "Ring Redis Session Store"
   :url "https://github.com/paraseba/rrss"
   :license {:name "Eclipse Public License - v 1.0"
