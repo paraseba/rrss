@@ -28,11 +28,14 @@
 (defn- delete-session* [key]
   (let [key (as-str key)]
     (fn [connection]
-      (.del connection (into-array String [key])))))
+      (.del connection (into-array String [key]))
+      nil)))
 
 (defn- write-session* [key data]
   (let [key (as-str key)]
-    (fn [connection] (hmset connection key data))))
+    (fn [connection]
+      (hmset connection key data)
+      key)))
 
 (deftype RedisStore [pool]
   SessionStore
