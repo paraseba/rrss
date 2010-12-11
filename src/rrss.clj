@@ -1,6 +1,7 @@
 (ns rrss
   (:import  org.apache.commons.pool.impl.GenericObjectPool$Config)
   (:import redis.clients.jedis.JedisPool)
+  (:import java.util.UUID)
   (:use [ring.middleware.session.store :only (SessionStore)]))
 
 (defn- with-connection [pool f]
@@ -20,19 +21,17 @@
     (.hmset connection key string-map)))
 
 (defn- read-session* [key]
-  (let [key (as-str key)]
-    (fn [connection]
-      (let [m (.hgetAll connection key)]
-        (dissoc (into {} m) "__")))))
+  (fn [connection]
+    (let [m (.hgetAll connection key)]
+      (dissoc (into {} m) "__"))))
 
 (defn- delete-session* [key]
-  (let [key (as-str key)]
-    (fn [connection]
-      (.del connection (into-array String [key]))
-      nil)))
+  (fn [connection]
+    (.del connection (into-array String [key]))
+    nil))
 
 (defn- write-session* [key data]
-  (let [key (as-str key)]
+  (let [key (or key (str (UUID/randomUUID)))]
     (fn [connection]
       (hmset connection key data)
       key)))
