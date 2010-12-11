@@ -1,4 +1,5 @@
-h1. rrss
+h1. RRSS
+
 h2. Ring Redis Session Store
 
 A simple *Ring* session store implemented on top of
@@ -18,7 +19,7 @@ h3. Installation
 
 Add [rrss/rrss "0.1.0-SNAPSHOT"] to your leiningen dependencies
 
-## License
+h3. License
 
 Copyright (C) 2010 Sebastián Galkin
 
