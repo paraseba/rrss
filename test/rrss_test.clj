@@ -35,9 +35,19 @@
   (let [store (redis-store)]
     (write-session store "deadman" {1 2})
     (delete-session store "deadman")
-    (is (= {} (read-session store "deadman")))))
+    (is (= {} (read-session store "deadman")))
+
+    (write-session store "foo" {1 2})
+    (delete-session store :foo)
+    (is (= {} (read-session store "foo")))
+    (is (= {} (read-session store :foo)))))
 
 (deftest test-read-session
   (is (= {} (read-session (redis-store) "unknown")))
   (is (= {} (read-session (redis-store) :unknown))))
 
+(deftest test-return-types
+  (let [store (redis-store)]
+    (is (= "foo" (write-session store "foo" {:hi :bye})))
+    (is (= "foo" (write-session store :foo {:hi :bye})))
+    (is (= nil (delete-session store :foo)))))
