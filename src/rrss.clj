@@ -4,10 +4,10 @@
   (:import java.util.UUID)
   (:use [ring.middleware.session.store :only (SessionStore)]))
 
-(defn- with-connection [pool f & args]
+(defn- with-connection [pool f]
   (let [connection (.getResource pool)]
     (try
-      (apply f connection args)
+      (f connection)
       (finally (when connection
                  (.returnResource pool connection))))))
 
@@ -18,7 +18,7 @@
 
 (defrecord Key [original redis])
 (defrecord Hook [on-write on-read on-delete])
-(defrecord HookData [keys fun connection])
+(defrecord OperationData [keys connection base-function])
 
 (defn- make-key [original config]
   (Key. original
@@ -49,7 +49,7 @@
   (fn [key] (str prefix key)))
 
 (defn- identity-hook-function [hook-data]
-  ((:fun hook-data)))
+  ((:base-function hook-data)))
 
 (defn- compose-hook-functions [funs]
   (reduce
@@ -63,17 +63,34 @@
     (compose-hook-functions (map :on-read hooks))
     (compose-hook-functions (map :on-delete hooks))))
 
+(defn- random-key [] (str (UUID/randomUUID)))
+
 (deftype RedisStore [pool config]
   SessionStore
   (read-session [_ key]
-    (with-connection pool read-session* (make-key key config)))
+    (with-connection pool
+      (fn [connection]
+        (let [key (make-key key config)
+              fun (partial read-session* connection key)
+              op-data (OperationData. key connection fun)]
+          ((get-in config [:hook :on-read]) op-data)))))
 
   (write-session [_ key data]
-    (let [key (or key (str (UUID/randomUUID)))]
-      (with-connection pool write-session* (make-key key config) data)))
+    (with-connection pool
+      (fn [connection]
+        (let [key (make-key (or key (random-key)) config)
+              fun (partial write-session* connection key data)
+              op-data (OperationData. key connection fun)]
+          ((get-in config [:hook :on-write]) op-data)))))
+
 
   (delete-session [_ key]
-    (with-connection pool delete-session* (make-key key config))))
+    (with-connection pool
+      (fn [connection]
+        (let [key (make-key key config)
+              fun (partial delete-session* connection key)
+              op-data (OperationData. key connection fun)]
+          ((get-in config [:hook :on-delete]) op-data))))))
 
 (defn redis-store
   ([] (redis-store {}))
