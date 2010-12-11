@@ -17,6 +17,8 @@
     (str o)))
 
 (defrecord Key [original redis])
+(defrecord Hook [on-write on-read on-delete])
+(defrecord HookData [keys fun connection])
 
 (defn- make-key [original config]
   (Key. original
@@ -46,6 +48,21 @@
 (defn- add-prefix [prefix]
   (fn [key] (str prefix key)))
 
+(defn- identity-hook-function [hook-data]
+  ((:fun hook-data)))
+
+(defn- compose-hook-functions [funs]
+  (reduce
+    (fn [res f] #(f res))
+    identity-hook-function
+    (keep identity funs)))
+
+(defn- compose-hooks [hooks]
+  (Hook.
+    (compose-hook-functions (map :on-write hooks))
+    (compose-hook-functions (map :on-read hooks))
+    (compose-hook-functions (map :on-delete hooks))))
+
 (deftype RedisStore [pool config]
   SessionStore
   (read-session [_ key]
@@ -61,8 +78,8 @@
 (defn redis-store
   ([] (redis-store {}))
   ([{:keys (host port map-key hooks)
-     :or {host "localhost" port 6379 map-key (add-prefix "sessions:") :hooks {}}}]
+     :or {host "localhost" port 6379 map-key (add-prefix "sessions:") :hooks []}}]
    (let [pool (JedisPool.  (org.apache.commons.pool.impl.GenericObjectPool$Config.)
                           host
                           port)]
-     (RedisStore. pool {:map-key map-key :hooks hooks}))))
+     (RedisStore. pool {:map-key map-key :hook (compose-hooks hooks)}))))
