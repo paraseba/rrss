@@ -2,12 +2,9 @@ h1. RRSS
 
 h2. Ring Redis Session Store
 
-A simple *Ring* session store implemented on top of
-"Redis":http://code.google.com/p/redis/ using 
-"Jedis":https://github.com/xetorthio/jedis
+A simple *Ring* session store implemented on top of "Redis":http://code.google.com/p/redis/ using "Jedis":https://github.com/xetorthio/jedis
 
-"Ring":https://github.com/mmcgrana/ring is the fantastic Clojure web application
-library.
+"Ring":https://github.com/mmcgrana/ring is the fantastic Clojure web application library.
 
 h3. Usage
 
