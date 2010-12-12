@@ -11,20 +11,20 @@
       (finally (when connection
                  (.returnResource pool connection))))))
 
-(defn- as-str [o]
-  (if (keyword? o)
-    (name o)
-    (str o)))
-
 (defrecord Key [original redis])
-(defrecord Hook [on-write on-read on-delete])
-(defrecord OperationData [keys connection base-function])
+(defrecord Hook [on-read on-write on-delete])
+(defrecord OperationData [keys connection base-function result])
 
 (defn- make-key [original config]
   (Key. original
         (if (nil? original)
           nil
           ((:map-key config) original))))
+
+(defn- as-str [o]
+  (if (keyword? o)
+    (name o)
+    (str o)))
 
 (defn- hmset [connection key data]
   (let [string-map (into {"__" ""} (map #(vec (map as-str %)) data))]
@@ -49,18 +49,18 @@
   (fn [key] (str prefix key)))
 
 (defn- identity-hook-function [hook-data]
-  ((:base-function hook-data)))
+  (assoc hook-data :result ((:base-function hook-data))))
 
 (defn- compose-hook-functions [funs]
   (reduce
-    (fn [res f] #(f res))
+    (fn [res f] (comp f res))
     identity-hook-function
     (keep identity funs)))
 
 (defn- compose-hooks [hooks]
   (Hook.
-    (compose-hook-functions (map :on-write hooks))
     (compose-hook-functions (map :on-read hooks))
+    (compose-hook-functions (map :on-write hooks))
     (compose-hook-functions (map :on-delete hooks))))
 
 (defn- random-key [] (str (UUID/randomUUID)))
@@ -72,16 +72,16 @@
       (fn [connection]
         (let [key (make-key key config)
               fun (partial read-session* connection key)
-              op-data (OperationData. key connection fun)]
-          ((get-in config [:hook :on-read]) op-data)))))
+              op-data (OperationData. key connection fun nil)]
+          (:result ((get-in config [:hook :on-read]) op-data))))))
 
   (write-session [_ key data]
     (with-connection pool
       (fn [connection]
         (let [key (make-key (or key (random-key)) config)
               fun (partial write-session* connection key data)
-              op-data (OperationData. key connection fun)]
-          ((get-in config [:hook :on-write]) op-data)))))
+              op-data (OperationData. key connection fun nil)]
+          (:result ((get-in config [:hook :on-write]) op-data))))))
 
 
   (delete-session [_ key]
@@ -89,8 +89,22 @@
       (fn [connection]
         (let [key (make-key key config)
               fun (partial delete-session* connection key)
-              op-data (OperationData. key connection fun)]
-          ((get-in config [:hook :on-delete]) op-data))))))
+              op-data (OperationData. key connection fun nil)]
+          (:result ((get-in config [:hook :on-delete]) op-data)))))))
+
+
+(defn sessions-set-hook
+  ([] (sessions-set-hook "sessions:all"))
+  ([set-key]
+   (Hook. nil
+          (fn [{:keys (keys connection base-function) :as data}]
+            (base-function)
+            (.sadd connection set-key (:redis keys))
+            data)
+          (fn [{:keys (keys connection base-function) :as data}]
+            (base-function)
+            (.srem connection set-key (:redis keys))
+            data))))
 
 (defn redis-store
   ([] (redis-store {}))
