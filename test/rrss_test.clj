@@ -2,6 +2,7 @@
   (:import redis.clients.jedis.Jedis)
   (:import java.util.Date)
   (:use rrss
+        (rrss.hooks sessions-set-hook time-sessions-hook)
         [ring.middleware.session.store :only (read-session write-session delete-session)]
         [clojure.test :only (deftest testing is use-fixtures)]))
 
