@@ -1,12 +1,12 @@
-(ns rrss.hooks.time-sessions-hook
-  (:require rrss.hooks)
+(ns rrss.steps.time-sessions-step
+  (:require rrss.steps)
   (:import java.util.Date)
-  (:import rrss.hooks.Hook))
+  (:import rrss.steps.Step))
 
-(defn time-sessions-hook
-  ([] (time-sessions-hook "%s:written-at"))
+(defn time-sessions-step
+  ([] (time-sessions-step "%s:written-at"))
   ([time-key-format]
-   (reify Hook
+   (reify Step
      (on-read [_ {f :base-function :as data}] (f) data)
      (on-write [_ {:keys (keys connection base-function) :as data}]
        (base-function)

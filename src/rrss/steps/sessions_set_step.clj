@@ -1,11 +1,11 @@
-(ns rrss.hooks.sessions-set-hook
-  (:require rrss.hooks)
-  (:import rrss.hooks.Hook))
+(ns rrss.steps.sessions-set-step
+  (:require rrss.steps)
+  (:import rrss.steps.Step))
 
-(defn sessions-set-hook
-  ([] (sessions-set-hook "sessions:all"))
+(defn sessions-set-step
+  ([] (sessions-set-step "sessions:all"))
   ([set-key]
-   (reify Hook
+   (reify Step
      (on-read [_ {f :base-function :as data}] (f) data)
      (on-write [_ {:keys (keys connection base-function) :as data}]
        (base-function)
