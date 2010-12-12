@@ -1,7 +1,7 @@
 (ns rrss
   (:import  org.apache.commons.pool.impl.GenericObjectPool$Config)
   (:import redis.clients.jedis.JedisPool)
-  (:import java.util.UUID)
+  (:import (java.util UUID Date))
   (:use [ring.middleware.session.store :only (SessionStore)]))
 
 (defn- with-connection [pool f]
@@ -105,6 +105,20 @@
             (base-function)
             (.srem connection set-key (:redis keys))
             data))))
+
+(defn time-sessions-hook
+  ([] (time-sessions-hook "%s:written-at"))
+  ([time-key-format]
+   (Hook. nil
+          (fn [{:keys (keys connection base-function) :as data}]
+            (base-function)
+            (.set connection (format time-key-format (:redis keys)) (str (.getTime (Date.))))
+            data)
+          (fn [{:keys (keys connection base-function) :as data}]
+            (base-function)
+            (.del connection (into-array String (format time-key-format (:redis keys))))
+            data))))
+
 
 (defn redis-store
   ([] (redis-store {}))

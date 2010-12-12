@@ -1,5 +1,6 @@
 (ns rrss_test
   (:import redis.clients.jedis.Jedis)
+  (:import java.util.Date)
   (:use rrss
         [ring.middleware.session.store :only (read-session write-session delete-session)]
         [clojure.test :only (deftest testing is use-fixtures)]))
@@ -68,6 +69,13 @@
     (write-session store "bar" {:hi :bye})
     (is (= #{"sessions:foo" "sessions:bar"} (.smembers jedis "sessions:all")))
     (delete-session store "bar")
-    (is (= #{"sessions:foo"} (.smembers jedis "sessions:all")))
-    ))
+    (is (= #{"sessions:foo"} (.smembers jedis "sessions:all")))))
 
+(defn millis-ago [time-str]
+  (- (.getTime (Date.))
+     (Long/parseLong time-str)))
+
+(deftest test-time-sessions-hook
+  (let [store (redis-store {:hooks [(time-sessions-hook)]})]
+    (write-session store "foo" {:hi :bye})
+    (is (> 1000 (millis-ago (.get jedis "sessions:foo:written-at"))))))
