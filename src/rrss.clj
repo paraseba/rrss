@@ -30,6 +30,8 @@
 
   ([] (redis-store {}))
   ([options]
-   (let [{:keys (host port map-key steps)} (merge default-options options)
-         pool (JedisPool. (pool-config options) host port)]
+   (let [{:keys (host port)} (merge default-options options)]
+     (redis-store (JedisPool. (pool-config options) host port) options)))
+  ([pool options]
+   (let [{:keys (map-key steps)} (merge default-options options)]
      (RedisStore. pool {:map-key map-key :step (compose-steps steps)}))))
