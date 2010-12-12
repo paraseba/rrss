@@ -5,13 +5,14 @@
 (defn sessions-set-hook
   ([] (sessions-set-hook "sessions:all"))
   ([set-key]
-   (Hook. nil
-          (fn [{:keys (keys connection base-function) :as data}]
-            (base-function)
-            (.sadd connection set-key (:redis keys))
-            data)
-          (fn [{:keys (keys connection base-function) :as data}]
-            (base-function)
-            (.srem connection set-key (:redis keys))
-            data))))
+   (reify Hook
+     (on-read [_ {f :base-function :as data}] (f) data)
+     (on-write [_ {:keys (keys connection base-function) :as data}]
+       (base-function)
+       (.sadd connection set-key (:redis keys))
+       data)
+     (on-delete [_ {:keys (keys connection base-function) :as data}]
+       (base-function)
+       (.srem connection set-key (:redis keys))
+       data))))
 

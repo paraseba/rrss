@@ -14,7 +14,7 @@
   {:host "localhost"
    :port 6379
    :map-key (add-prefix "sessions:")
-   :hooks []}) 
+   :hooks []})
 
 (defn- pool-config [options]
   (org.apache.commons.pool.impl.GenericObjectPool$Config.))

@@ -1,6 +1,6 @@
 (ns rrss.store
   (:import (java.util UUID Date))
-  (:require rrss.hooks)
+  (:use [rrss.hooks :only (on-read on-write on-delete)])
   (:import (rrss.hooks Key OperationData))
   (:use [ring.middleware.session.store :only (SessionStore)]))
 
@@ -50,7 +50,7 @@
         (let [key (make-key key config)
               fun (partial read-session* connection key)
               op-data (OperationData. key connection fun nil)]
-          (:result ((get-in config [:hook :on-read]) op-data))))))
+          (:result (on-read (:hook config) op-data))))))
 
   (write-session [_ key data]
     (with-connection pool
@@ -58,7 +58,7 @@
         (let [key (make-key (or key (random-key)) config)
               fun (partial write-session* connection key data)
               op-data (OperationData. key connection fun nil)]
-          (:result ((get-in config [:hook :on-write]) op-data))))))
+          (:result (on-write (:hook config) op-data))))))
 
   (delete-session [_ key]
     (with-connection pool
@@ -66,4 +66,4 @@
         (let [key (make-key key config)
               fun (partial delete-session* connection key)
               op-data (OperationData. key connection fun nil)]
-          (:result ((get-in config [:hook :on-delete]) op-data)))))))
+          (:result (on-delete (:hook config) op-data)))))))
