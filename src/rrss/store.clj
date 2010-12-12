@@ -10,14 +10,14 @@
     (str o)))
 
 (defn- hmset [connection key data]
-  (let [string-map (into {"__" ""} (map #(vec (map as-str %)) data))]
+  (let [string-map (into {} (map #(vec (map as-str %)) data))]
     (.hmset connection key string-map)))
 
 (defn- read-session* [connection {okey :original rkey :redis}]
   (if (nil? okey)
     {}
     (let [m (.hgetAll connection rkey)]
-      (dissoc (into {} m) "__"))))
+      (into {} m))))
 
 (defn- delete-session* [connection {okey :original rkey :redis}]
   (when-not (nil? okey)
@@ -25,8 +25,10 @@
   nil)
 
 (defn- write-session* [connection {okey :original rkey :redis :as kk} data]
-  (hmset connection rkey data)
+  (when-not (empty? data) ;don't persist empty sessions, read will return {} anyway
+    (hmset connection rkey data))
   okey)
+
 (defn- random-key [] (str (UUID/randomUUID)))
 
 (defn- with-connection [pool f]

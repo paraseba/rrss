@@ -46,6 +46,7 @@
   (write-session store "deadman" {1 2})
   (delete-session store "deadman")
   (is (= {} (read-session store "deadman")))
+  (is (nil? (delete-session store "unknown")))
   (is (nil? (delete-session store nil))))
 
 (deftest test-read-session
