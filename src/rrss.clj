@@ -46,8 +46,9 @@
 (defn expiring-redis-store
   ([] (expiring-redis-store {}))
   ([options]
-   (let [{:keys (host port)} (merge default-options options)]
-     (expiring-redis-store (JedisPool. (pool-config options) host port) options)))
+   (let [{:keys (host port)} (merge default-options options)
+         pool (JedisPool. (pool-config options) host port)]
+     (expiring-redis-store pool options)))
   ([pool options]
    (let [{:keys (key-mapper steps)} (merge default-options options)
          steps (concat [(sessions-set-step options) (expire-sessions-step options)] steps)]
