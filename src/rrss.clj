@@ -50,6 +50,6 @@
      (expiring-redis-store (JedisPool. (pool-config options) host port) options)))
   ([pool options]
    (let [{:keys (key-mapper steps)} (merge default-options options)
-         steps (concat [(sessions-set-step) (expire-sessions-step options)] steps)]
+         steps (concat [(sessions-set-step options) (expire-sessions-step options)] steps)]
      (RedisStore. pool (create-step-chain (all-steps key-mapper steps))))))
 
