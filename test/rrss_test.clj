@@ -61,7 +61,7 @@
   (write-session store "foo" {:hi :bye})
   (is (= "hash" (.type jedis "sessions:foo")))
 
-  (write-session (redis-store {:map-key #(str % ":suffix")}) "bar" {:hi :bye})
+  (write-session (redis-store {:key-mapper #(str % ":suffix")}) "bar" {:hi :bye})
   (is (= "hash" (.type jedis "bar:suffix")))
   (is (= "none" (.type jedis "sessions:bar"))))
 

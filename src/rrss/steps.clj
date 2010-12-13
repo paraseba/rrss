@@ -1,24 +1,25 @@
 (ns rrss.steps)
 
 (defprotocol Step
-  (on-read [step operation-data])
-  (on-write [step operation-data])
-  (on-delete [step operation-data]))
+  (on-read [step operation-data next-step])
+  (on-write [step operation-data next-step])
+  (on-delete [step operation-data next-step]))
 
-(defrecord Key [original redis])
-(defrecord OperationData [keys connection base-function result])
+(defn- chain-funs [funs]
+  (reduce
+    (fn [chain f]
+      (fn [opdata]
+        (f opdata chain)))
+    identity
+    funs))
 
-(defn- identity-step-function [step-data]
-  (assoc step-data :result ((:base-function step-data))))
+(defn- step-binder [f]
+  #(partial f %))
 
-(defn compose-steps [steps]
+(defn create-step-chain [steps]
   (let [;steps (reverse steps) ;fixme decide correct order
-        read   (apply comp identity-step-function (map #(partial on-read %) steps))
-        write  (apply comp identity-step-function (map #(partial on-write %) steps))
-        delete (apply comp identity-step-function (map #(partial on-delete %) steps))]
-
-  (reify Step
-    (on-read   [_ data] (read data))
-    (on-write  [_ data] (write data))
-    (on-delete [_ data] (delete data)))))
+        read   (chain-funs (map (step-binder on-read) steps))
+        write  (chain-funs (map (step-binder on-write) steps))
+        delete (chain-funs (map (step-binder on-delete) steps))]
+    {:read read :write write :delete delete}))
 

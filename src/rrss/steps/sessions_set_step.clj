@@ -6,13 +6,13 @@
   ([] (sessions-set-step "sessions:all"))
   ([set-key]
    (reify Step
-     (on-read [_ {f :base-function :as data}] (f) data)
-     (on-write [_ {:keys (keys connection base-function) :as data}]
-       (base-function)
-       (.sadd connection set-key (:redis keys))
-       data)
-     (on-delete [_ {:keys (keys connection base-function) :as data}]
-       (base-function)
-       (.srem connection set-key (:redis keys))
-       data))))
+     (on-read [_ opdata next-step] (next-step opdata))
+     (on-write [_ opdata next-step]
+       (let [res (next-step opdata)]
+         (.sadd (:connection res) set-key (:redis-key res))
+         res))
+     (on-delete [_ opdata next-step]
+       (let [res (next-step opdata)]
+         (.srem (:connection res) set-key (:redis-key res))
+         res)))))
 

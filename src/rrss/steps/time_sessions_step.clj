@@ -1,18 +1,21 @@
 (ns rrss.steps.time-sessions-step
-  (:require rrss.steps)
   (:import java.util.Date)
+  (:require rrss.steps)
   (:import rrss.steps.Step))
 
 (defn time-sessions-step
   ([] (time-sessions-step "%s:written-at"))
   ([time-key-format]
    (reify Step
-     (on-read [_ {f :base-function :as data}] (f) data)
-     (on-write [_ {:keys (keys connection base-function) :as data}]
-       (base-function)
-       (.set connection (format time-key-format (:redis keys)) (str (.getTime (Date.))))
-       data)
-     (on-delete [_ {:keys (keys connection base-function) :as data}]
-       (base-function)
-       (.del connection (into-array String (format time-key-format (:redis keys))))
-       data))))
+     (on-read [_ opdata next-step] (next-step opdata))
+     (on-write [_ opdata next-step]
+       (let [res (next-step opdata)]
+         (.set (:connection res)
+               (format time-key-format (:redis-key res))
+               (str (.getTime (Date.))))
+         res))
+     (on-delete [_ opdata next-step]
+       (let [res (next-step opdata)]
+         (.del (:connection res)
+               (into-array String (format time-key-format (:redis-key res))))
+         res)))))
