@@ -13,6 +13,7 @@
                  res))
       :delete (fn [opdata next-step]
                 (let [res (next-step opdata)]
-                  (.zrem (:connection res) set-key (:redis-key res))
+                  (when-let [key (:redis-key res)]
+                    (.zrem (:connection res) set-key key))
                   res))})))
 
