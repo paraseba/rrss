@@ -58,9 +58,10 @@ thread will search for old sessions every minute.
 ### Advanced use
 
 rrss is highly configurable. You can create your own Redis session store, using
-rrss Steps. Steps are phases of operation in the store. For example, key translation
-and persistence, are implemented as Steps in rrss. Other example of Step in rrss
-code is session expiring.
+rrss `Steps`. Steps are phases during the session store operation in the store.
+For example, key translation and persistence, are implemented as Steps in rrss.
+Other example of Step in rrss code is session expiring. You can create your
+own steps to extend rrss functionality.
 
 Read the documentation for more information on Steps.
 
