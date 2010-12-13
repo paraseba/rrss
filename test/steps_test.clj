@@ -66,9 +66,9 @@
   (let [store (redis-store {:steps [(sessions-set-step)]})]
     (write-session store "foo" {:hi :bye})
     (write-session store "bar" {:hi :bye})
-    (is (= #{"sessions:foo" "sessions:bar"} (.smembers jedis "sessions:all")))
+    (is (= #{"sessions:foo" "sessions:bar"} (.zrange jedis "sessions:all" 0 -1)))
     (delete-session store "bar")
-    (is (= #{"sessions:foo"} (.smembers jedis "sessions:all")))))
+    (is (= #{"sessions:foo"} (.zrange jedis "sessions:all" 0 -1)))))
 
 (defn millis-ago [time-str]
   (- (.getTime (Date.))
@@ -82,6 +82,6 @@
 (deftest set-and-time-steps
   (let [store (redis-store {:steps [(time-sessions-step) (sessions-set-step)]})]
     (write-session store "foo" {:hi :bye})
-    (is (= #{"sessions:foo"} (.smembers jedis "sessions:all")))
+    (is (= #{"sessions:foo"} (.zrange jedis "sessions:all" 0 -1)))
     (is (> 1000 (millis-ago (.get jedis "sessions:foo:written-at"))))))
 

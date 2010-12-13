@@ -1,4 +1,5 @@
 (ns rrss.steps.sessions-set-step
+  (:import java.util.Date)
   (:use [rrss.steps :only (create-step)])
   (:import rrss.steps.Step))
 
@@ -7,11 +8,12 @@
   ([set-key]
    (create-step
      {:write (fn [opdata next-step]
-               (let [res (next-step opdata)]
-                 (.sadd (:connection res) set-key (:redis-key res))
+               (let [res (next-step opdata)
+                     score (-> (Date.) .getTime double)]
+                 (.zadd (:connection res) set-key score (:redis-key res))
                  res))
       :delete (fn [opdata next-step]
                 (let [res (next-step opdata)]
-                  (.srem (:connection res) set-key (:redis-key res))
+                  (.zrem (:connection res) set-key (:redis-key res))
                   res))})))
 
