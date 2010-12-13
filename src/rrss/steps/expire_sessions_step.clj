@@ -36,11 +36,16 @@
       (start-thread-if-needed duration resolution all-sessions-key opdata)
       res)))
 
+(def default-options
+  {:duration (* 7 24 60 60)
+   :resolution (* 10 60)
+   :all-sessions-key "sessions:all"})
+
 (defn expire-sessions-step
-  ([] (expire-sessions-step (* 7 24 60 60) (* 10 60)))
-  ([duration resolution] (expire-sessions-step duration resolution "sessions:all"))
-  ([duration resolution all-sessions-key]
-   (let [step-fun (step-function duration resolution all-sessions-key)]
+  ([] (expire-sessions-step {}))
+  ([options]
+   (let [{:keys [duration resolution all-sessions-key]} (merge default-options options)
+         step-fun (step-function duration resolution all-sessions-key)]
      (create-step
        {:write step-fun :read step-fun :delete step-fun}))))
 

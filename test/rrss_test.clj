@@ -20,7 +20,7 @@
   (is (redis-store))
   (is (redis-store {:port 6378 :host "example.com"})))
 
-(def store (redis-store))
+(declare ^:dynamic store)
 
 (deftest test-write-session
   (write-session store "empty" {})
@@ -64,4 +64,18 @@
   (write-session (redis-store {:key-mapper #(str % ":suffix")}) "bar" {:hi :bye})
   (is (= "hash" (.type jedis "bar:suffix")))
   (is (= "none" (.type jedis "sessions:bar"))))
+
+(deftest all
+  (test-construction)
+  (test-write-session)
+  (create-random-keys)
+  (test-delete-session)
+  (test-read-session)
+  (test-return-types)
+  (test-redis-keys))
+
+(defn test-ns-hook []
+  (doseq [the-store [(redis-store) (expiring-redis-store)]]
+    (binding [store the-store]
+      (all))))
 

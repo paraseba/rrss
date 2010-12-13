@@ -7,7 +7,9 @@
   (:import rrss.store.RedisStore)
   (:use [rrss.steps :only (create-step-chain)]
         (rrss.steps [backend-step :only (backend-step)]
-                    [mapkey-step :only (create-mapkey-step)])))
+                    [mapkey-step :only (create-mapkey-step)]
+                    [sessions-set-step :only (sessions-set-step)]
+                    [expire-sessions-step :only (expire-sessions-step)])))
 
 (defn- add-prefix [prefix]
   (fn [key] (str prefix key)))
@@ -40,3 +42,14 @@
   ([pool options]
    (let [{:keys (key-mapper steps)} (merge default-options options)]
      (RedisStore. pool (create-step-chain (all-steps key-mapper steps))))))
+
+(defn expiring-redis-store
+  ([] (expiring-redis-store {}))
+  ([options]
+   (let [{:keys (host port)} (merge default-options options)]
+     (expiring-redis-store (JedisPool. (pool-config options) host port) options)))
+  ([pool options]
+   (let [{:keys (key-mapper steps)} (merge default-options options)
+         steps (concat [(sessions-set-step) (expire-sessions-step options)] steps)]
+     (RedisStore. pool (create-step-chain (all-steps key-mapper steps))))))
+

@@ -87,7 +87,7 @@
 
 (deftest test-expire-sessions-step
   (let [store (redis-store {:steps [(sessions-set-step)
-                                    (expire-sessions-step 1 1)]})]
+                                    (expire-sessions-step {:resolution 1 :duration 1})]})]
     (Thread/sleep 1000)
     (write-session store "old" {"old" "foo"})
     (is (= {"old" "foo"} (read-session store "old")))
