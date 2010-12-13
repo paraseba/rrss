@@ -1,7 +1,6 @@
 (ns rrss.steps.time-sessions-step
   (:import java.util.Date)
-  (:use [rrss.steps :only (create-step)])
-  (:import rrss.steps.Step))
+  (:use [rrss.steps :only (create-step)]))
 
 (defn time-sessions-step
   ([] (time-sessions-step "%s:written-at"))

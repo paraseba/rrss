@@ -1,7 +1,6 @@
 (ns rrss.steps.sessions-set-step
   (:import java.util.Date)
-  (:use [rrss.steps :only (create-step)])
-  (:import rrss.steps.Step))
+  (:use [rrss.steps :only (create-step)]))
 
 (defn sessions-set-step
   ([] (sessions-set-step "sessions:all"))

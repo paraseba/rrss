@@ -2,8 +2,8 @@
   (:import redis.clients.jedis.Jedis)
   (:import java.util.Date)
   (:use rrss
-        [rrss.steps :only (create-read-step create-delete-step create-write-step)]
-        (rrss.steps sessions-set-step time-sessions-step)
+        [rrss.steps]
+        (rrss.steps sessions-set-step time-sessions-step expire-sessions-step)
         [ring.middleware.session.store :only (read-session write-session delete-session)]
         [clojure.test :only (deftest testing is use-fixtures)]))
 
@@ -85,3 +85,16 @@
     (is (= #{"sessions:foo"} (.zrange jedis "sessions:all" 0 -1)))
     (is (> 1000 (millis-ago (.get jedis "sessions:foo:written-at"))))))
 
+(deftest test-expire-sessions-step
+  (let [store (redis-store {:steps [(sessions-set-step)
+                                    (expire-sessions-step 1 1)]})]
+    (Thread/sleep 1000)
+    (write-session store "old" {"old" "foo"})
+    (is (= {"old" "foo"} (read-session store "old")))
+    (Thread/sleep 2200)
+    (write-session store "new" {:new :foo})
+    (is (= {"new" "foo"} (read-session store "new")))
+    (is (= {} (read-session store "old")))
+    (Thread/sleep 2200)
+    (is (= {} (read-session store "old")))
+    (is (= {} (read-session store "new")))))
