@@ -22,7 +22,7 @@
   (org.apache.commons.pool.impl.GenericObjectPool$Config.))
 
 (defn- all-steps [key-mapper steps]
-  (concat steps [(create-mapkey-step key-mapper) backend-step]))
+  (concat [(create-mapkey-step key-mapper) backend-step] steps))
 
 (defn redis-store
   "Create the session store.

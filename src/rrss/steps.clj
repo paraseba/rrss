@@ -23,3 +23,20 @@
         delete (chain-funs (map (step-binder on-delete) steps))]
     {:read read :write write :delete delete}))
 
+(defn create-read-step [fun]
+  (reify Step
+    (on-read [_ operation-data next-step] (fun operation-data next-step))
+    (on-write [_ operation-data next-step] (next-step operation-data))
+    (on-delete [_ operation-data next-step] (next-step operation-data))))
+
+(defn create-write-step [fun]
+  (reify Step
+    (on-read [_ operation-data next-step] (next-step operation-data))
+    (on-write [_ operation-data next-step] (fun operation-data next-step))
+    (on-delete [_ operation-data next-step] (next-step operation-data))))
+
+(defn create-delete-step [fun]
+  (reify Step
+    (on-read [_ operation-data next-step] (next-step operation-data))
+    (on-write [_ operation-data next-step] (next-step operation-data))
+    (on-delete [_ operation-data next-step] (fun operation-data next-step))))

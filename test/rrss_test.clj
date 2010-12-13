@@ -65,19 +65,3 @@
   (is (= "hash" (.type jedis "bar:suffix")))
   (is (= "none" (.type jedis "sessions:bar"))))
 
-(deftest test-sessions-set-step
-  (let [store (redis-store {:steps [(sessions-set-step)]})]
-    (write-session store "foo" {:hi :bye})
-    (write-session store "bar" {:hi :bye})
-    (is (= #{"sessions:foo" "sessions:bar"} (.smembers jedis "sessions:all")))
-    (delete-session store "bar")
-    (is (= #{"sessions:foo"} (.smembers jedis "sessions:all")))))
-
-(defn millis-ago [time-str]
-  (- (.getTime (Date.))
-     (Long/parseLong time-str)))
-
-(deftest test-time-sessions-step
-  (let [store (redis-store {:steps [(time-sessions-step)]})]
-    (write-session store "foo" {:hi :bye})
-    (is (> 1000 (millis-ago (.get jedis "sessions:foo:written-at"))))))
