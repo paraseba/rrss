@@ -25,6 +25,36 @@ You can pass options such as:
     (def store
       (redis-store {:host "localhost" :port 6379}))
 
+This will create a default store, connecting a Redis server in the given host
+and port. Every sessions will be saved under a key of the form `sessions:ID`
+where `ID` is a random UUID. If you want to customize the keys, you can pass
+a `key-mapper` option, with a function that maps string keys. For instance
+
+    (defn key-mapper [key]
+      (str "sessions:" key ":data"))
+
+    (def store
+      (redis-store {:key-mapper key-mapper}))
+
+The default store doesn't handle any kind of session expiration, it will only
+save every session under its own key.
+
+### Expiring sessions
+
+If you want to delete old sessions you can use:
+
+    (def store (expiring-redis-store))
+
+This store will delete sessions older than a week by running a background thread.
+You can customize this time with options:
+
+    (def one-minute 60)
+    (def one-hour (* 60 one-minute))
+    (def store (expiring-redis-store :duration one-hour :resolution one-minute))
+
+This way, sessions will last for an hour since the last change, and the background
+thread will search for old sessions every minute.
+
 ### Installation
 
 Add [rrss/rrss "0.2.1-SNAPSHOT"] to your leiningen dependencies
