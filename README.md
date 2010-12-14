@@ -28,7 +28,8 @@ You can pass options such as:
 This will create a default store, connecting a Redis server in the given host
 and port. Every sessions will be saved under a key of the form `sessions:ID`
 where `ID` is a random UUID. If you want to customize the keys, you can pass
-a `key-mapper` option, with a function that maps string keys. For instance
+a `key-mapper` option, with a function that maps session ids to Redis keys.
+For instance
 
     (defn key-mapper [key]
       (str "sessions:" key ":data"))

@@ -6,7 +6,7 @@
   argument to operations. Each Step must call the following Step (next-step)
   passing a possibly modified operation-data
   Default keys in operation-data are:
-    * original-key: session id
+    * session-id: session id
     * redis-key: session id as stored in redis
     * data (for write operations)
     * connection: instance of Jedis to contact Redis db"

@@ -2,9 +2,9 @@
   (:require rrss.steps)
   (:import rrss.steps.Step))
 
-(defn- read-session [connection okey rkey]
-  "Read session okey, saved under key rkey. Return empty map if okey is nil"
-  (if (nil? okey)
+(defn- read-session [connection id rkey]
+  "Read session identified by id, saved under key rkey. Return empty map if id is nil"
+  (if (nil? id)
     {}
     (let [m (.hgetAll connection rkey)]
       (into {} m))))
@@ -27,21 +27,21 @@
 (defn- write-session
   "Write session data using the given session id and redis key. Convert keyword session
   members to strings"
-  [connection okey rkey data]
+  [connection id rkey data]
   (when-not (empty? data) ;don't persist empty sessions, read will return {} anyway
     (hmset connection rkey data))
-  okey)
+  id)
 
 (def ^{:doc "Create a Step that handles Redis storage. It will save each session in a
             Redis hash"}
   backend-step
   (reify Step
     (on-read [_ opdata next-step]
-      (let [{:keys (connection original-key redis-key) :as m} (next-step opdata)]
-        (assoc m :result (read-session connection original-key redis-key))))
+      (let [{:keys (connection session-id redis-key) :as m} (next-step opdata)]
+        (assoc m :result (read-session connection session-id redis-key))))
     (on-write [_ opdata next-step]
-      (let [{:keys (connection original-key redis-key data) :as m} (next-step opdata)]
-        (assoc m :result (write-session connection original-key redis-key data))))
+      (let [{:keys (connection session-id redis-key data) :as m} (next-step opdata)]
+        (assoc m :result (write-session connection session-id redis-key data))))
     (on-delete [_ opdata next-step]
       (let [{:keys (connection redis-key) :as m} (next-step opdata)]
         (assoc m :result (delete-session connection redis-key))))))

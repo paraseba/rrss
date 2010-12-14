@@ -13,22 +13,22 @@
                  (.returnResource pool connection))))))
 
 (defn- make-operation-map
-  ([connection key] {:original-key key :connection connection})
-  ([connection key data] {:original-key key :data data :connection connection}))
+  ([connection id] {:session-id id :connection connection})
+  ([connection id data] {:session-id id :data data :connection connection}))
 
 (deftype RedisStore [pool step-chain-map]
   SessionStore
-  (read-session [_ key]
+  (read-session [_ id]
     (with-connection pool
       (fn [connection]
-        (:result ((:read step-chain-map) (make-operation-map connection key))))))
+        (:result ((:read step-chain-map) (make-operation-map connection id))))))
 
-  (write-session [_ key data]
+  (write-session [_ id data]
     (with-connection pool
       (fn [connection]
-        (:result ((:write step-chain-map) (make-operation-map connection key data))))))
+        (:result ((:write step-chain-map) (make-operation-map connection id data))))))
 
-  (delete-session [_ key]
+  (delete-session [_ id]
     (with-connection pool
       (fn [connection]
-        (:result ((:delete step-chain-map) (make-operation-map connection key)))))))
+        (:result ((:delete step-chain-map) (make-operation-map connection id)))))))
