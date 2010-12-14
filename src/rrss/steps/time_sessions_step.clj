@@ -3,6 +3,10 @@
   (:use [rrss.steps :only (create-step)]))
 
 (defn time-sessions-step
+  "Create a step that adds an extra key-value for each session containing the last
+  write time. Time is written as the number of seconds since January 1, 1970, 00:00:00 GMT.
+  You can pass a string to change the default time key name, the string is used as input
+  to a format call"
   ([] (time-sessions-step "%s:written-at"))
   ([time-key-format]
    (create-step

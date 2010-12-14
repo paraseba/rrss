@@ -1,4 +1,5 @@
 (ns rrss.store
+  "Define a type for the Ring store"
   (:use [ring.middleware.session.store :only (SessionStore)]))
 
 

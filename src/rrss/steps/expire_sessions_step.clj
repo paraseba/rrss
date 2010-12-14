@@ -2,13 +2,18 @@
   (:import java.util.Date)
   (:use [rrss.steps :only (create-step)]))
 
-(defn- worker-loop [resolution worker stop-signal]
+(defn- worker-loop
+  "Do worker job every resolution seconds until the atom stop-signal fires"
+  [resolution worker stop-signal]
   (when-not @stop-signal
     (Thread/sleep (* 1000 resolution))
     (worker)
     (recur resolution worker stop-signal)))
 
-(defn- expire [connection duration all-sessions-key]
+(defn- expire
+  "Delete sessions older than duration seconds. All session keys are saved in a
+  sorted map according to rrss.steps.sessions-set-step.sessions-set-step"
+  [connection duration all-sessions-key]
   (let [now (-> (Date.) .getTime)
         duration-ms (* 1000 duration)
         max-score (double (- now duration-ms))
@@ -25,6 +30,8 @@
 
 
 (defn expire-sessions-step
+  "Create a Step that deletes sessions that have not been written lately
+  See documentation for rrss.expiring-redis-store"
   ([] (expire-sessions-step {}))
   ([options]
    (let [{:keys [duration resolution all-sessions-key with-stop]} (merge default-options options)
