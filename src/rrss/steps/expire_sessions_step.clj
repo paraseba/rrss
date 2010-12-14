@@ -21,22 +21,7 @@
              (worker-loop resolution
                           (partial expire connection duration all-sessions-key)))))
 
-(def ^{:private true} expire-thread (atom nil))
-
-(defn- start-thread-if-needed [duration resolution all-sessions-key {connection :connection}]
-  (swap! expire-thread #(or %
-                           (create-worker-thread
-                             connection duration resolution all-sessions-key)))
-  (or (.isAlive @expire-thread)
-      (.start @expire-thread)))
-
-(defn- step-function [duration resolution all-sessions-key]
-  (fn [opdata next-step]
-    (let [res (next-step opdata)]
-      (start-thread-if-needed duration resolution all-sessions-key opdata)
-      res)))
-
-(def default-options
+(def ^{:private true} default-options
   {:duration (* 7 24 60 60)
    :resolution (* 10 60)
    :all-sessions-key "sessions:all"})
@@ -45,7 +30,20 @@
   ([] (expire-sessions-step {}))
   ([options]
    (let [{:keys [duration resolution all-sessions-key]} (merge default-options options)
-         step-fun (step-function duration resolution all-sessions-key)]
-     (create-step
-       {:write step-fun :read step-fun :delete step-fun}))))
+         thread (atom nil)
+         start-thread (fn [connection]
+                        (swap! thread #(or %
+                                           (create-worker-thread
+                                             connection
+                                             duration
+                                             resolution
+                                             all-sessions-key)))
+                        (or (.isAlive @thread)
+                            (.start @thread)))
+         step-fun (fn [opdata next-step]
+                    (let [res (next-step opdata)]
+                      (start-thread (:connection opdata))
+                      res))]
+
+     (create-step {:write step-fun :read step-fun :delete step-fun}))))
 
