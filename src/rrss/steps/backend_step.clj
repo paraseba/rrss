@@ -28,7 +28,6 @@
   "Write session data using the given session id and redis key. Convert keyword session
   members to strings"
   [connection okey rkey data]
-  (let [okey (or rkey )])
   (when-not (empty? data) ;don't persist empty sessions, read will return {} anyway
     (hmset connection rkey data))
   okey)

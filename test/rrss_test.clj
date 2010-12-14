@@ -32,6 +32,10 @@
   (write-session store "key-str" {:hi "bye" "hi" :bye})
   (is (= {"hi" "bye"} (read-session store "key-str")))
 
+  (let [new-id (write-session store nil {1 :foo})]
+    (is (= new-id (write-session store new-id {1 :bar})))
+    (is (= {"1" "bar"} (read-session store new-id))))
+
   (write-session store "almost-empty" {})
   (write-session store "almost-empty" {:not :so-much-empty})
   (is (= {"not" "so-much-empty"} (read-session store "almost-empty"))))
