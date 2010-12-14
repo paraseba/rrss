@@ -1,0 +1,353 @@
+<html>
+  <head>
+    <title>rrss API reference (rrss)</title>
+    <link href="static/favicon.png" rel="icon" />
+    <link href="static/favicon.png" rel="shortcut icon" />
+    <link media="all" type="text/css" href="static/clojure.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/wiki.css" rel="stylesheet" />
+    <link media="all" type="text/css" href="static/internal.css" rel="stylesheet" />
+    <!-- TODO: are we using these (from clojure.org)? If so, add the files -->
+    <script src="file/view/code_highlighter.js" type="text/javascript"></script>
+    <script src="file/view/clojure.js" type="text/javascript"></script>
+    <style>.menuWrapper{height: 36px;}</style>
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" href="http://www.wikispaces.com/_/2009051601/s/internal_ie.css" type="text/css" />
+    <![endif]-->
+  </head>
+<!--
+This document was auto-generated from the source by the clojure autodoc system.
+To report errors or ask questions about the overall documentation structure, formatting,
+etc., contact Tom Faulhaber (google mail name: tomfaulhaber).
+For errors in the documentation of a particular namespace, contact the author of that
+namespace.
+-->
+  <body>
+    <div id="AllContentContainer">
+      <div id="Header">
+	<a id="Logo" href="index.html"><img alt="Clojure" height="100" width="100" src="static/clojure-icon.gif" /></a>
+	<h1><a title="page header title" id="page-header" href="index.html">rrss API Documentation</a></h1>
+      </div>
+      <div id="leftcolumn"><div style="text-align: center;"></div>
+<div class="menu">
+  <div class="WikiCustomNav WikiElement wiki">
+    <a class="wiki_link" href="index.html">Overview</a><br />
+    <a class="wiki_link" href="api-index.html">API Index</a><br />
+    <a class="wiki_link" href="#">Namespaces:</a>
+    <ul id="left-sidebar-list">
+      <li><a href="rrss-api.html" class="wiki_link">rrss</a></li>
+    </ul>
+  </div>
+</div>
+</div>
+      <div id="rightcolumn">
+	<div id="Content">
+	  <div class="contentBox"><div class="innerContentBox">
+              <div id="content_view" class="wiki wikiPage">
+                <div id="right-sidebar"><div id="toc">
+  <h1 class="nopad">Table of Contents</h1>
+  <div style="margin-left: 1em;" class="toc-section">
+    <a href="#toc0">Overview</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss/expiring-redis-store">expiring-redis-store</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss/redis-store">redis-store</a>
+    </div>
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#rrss.steps">rrss.steps</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps/Step">Step</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps/create-delete-step">create-delete-step</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps/create-read-step">create-read-step</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps/create-step">create-step</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps/create-step-chain">create-step-chain</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps/create-write-step">create-write-step</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps/on-delete">on-delete</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps/on-read">on-read</a>
+    </div><div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps/on-write">on-write</a>
+    </div>
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#rrss.steps.backend-step">rrss.steps.backend-step</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps.backend-step/backend-step">backend-step</a>
+    </div>
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#rrss.steps.expire-sessions-step">rrss.steps.expire-sessions-step</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps.expire-sessions-step/expire-sessions-step">expire-sessions-step</a>
+    </div>
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#rrss.steps.mapkey-step">rrss.steps.mapkey-step</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps.mapkey-step/create-mapkey-step">create-mapkey-step</a>
+    </div>
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#rrss.steps.sessions-set-step">rrss.steps.sessions-set-step</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps.sessions-set-step/sessions-set-step">sessions-set-step</a>
+    </div>
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#rrss.steps.time-sessions-step">rrss.steps.time-sessions-step</a>
+    <div style="margin-left: 1em;" class="toc-entry">
+      <a href="#rrss.steps.time-sessions-step/time-sessions-step">time-sessions-step</a>
+    </div>
+    <br />
+  </div><div style="margin-left: 1em;" class="toc-section">
+    <a href="#rrss.store">rrss.store</a>
+    
+    <br />
+  </div>
+</div>
+</div>
+                <div id="content-tag"><h1 id="overview">API for <span id="namespace-name">rrss</span></h1>
+by <span id="author">Unknown</span><br />
+<br />Usage:
+<pre>
+(ns your-namespace
+  (:require <span id="long-name">rrss</span>))
+</pre><pre>
+</pre><h2>Overview</h2>
+<pre id="namespace-docstr">Ring Redis Session Store
+Ring session store implemented on top of Redis key/value store</pre>
+<br />
+<h2>Public Variables and Functions</h2>
+<div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="rrss/expiring-redis-store">expiring-redis-store</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (expiring-redis-store)
+       (expiring-redis-store options)
+       (expiring-redis-store pool options)
+</pre>
+  <pre id="var-docstr">Create a session store with session expiration.
+Sessions are checked in a background thread an deleted when the last write
+is older than a certain value.
+Valid options are:
+  :host redis server URL string
+  :port redis server port
+  :duration number of seconds after which a session can be deleted. Defaults
+            to 1 week
+  :resolution interval in seconds between successive session checks. Defaults
+              to 10 minutes
+  :key-mapper a function that takes a key string and returns the key that
+  will be saved to redis. Defaults to a transformation foo -&gt; sessions:foo
+  :steps vector of extra steps that will be used. See rrss.steps</pre>
+  <a href="http://github.com/paraseba/rrss/blob/68ae521790c8e138f142df038de8ad25d598eb9e/src/rrss.clj#L50" id="var-source">Source</a>
+</div><div id="var-entry">
+  <br />
+  <hr />
+  <h2 id="rrss/redis-store">redis-store</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (redis-store)
+       (redis-store options)
+       (redis-store pool options)
+</pre>
+  <pre id="var-docstr">Create the default session store.
+Valid options are:
+  :host redis server URL string
+  :port redis server port
+  :key-mapper a function that takes a key string and returns the key that
+  will be saved to redis. Defaults to a transformation foo -&gt; sessions:foo
+  :steps vector of extra steps that will be used. See rrss.steps</pre>
+  <a href="http://github.com/paraseba/rrss/blob/68ae521790c8e138f142df038de8ad25d598eb9e/src/rrss.clj#L33" id="var-source">Source</a>
+</div>
+<h2 id="namespace-name">rrss.steps</h2>
+<pre id="namespace-docstr"></pre>
+<br />
+<div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps/Step">Step</h2>
+  <span id="var-type">var</span><br />
+  <pre id="var-usage"></pre>
+  <pre id="var-docstr">Perform store operations.
+Information flows through the Steps chain in a map (operation-data) passed as
+argument to operations. Each Step must call the following Step (next-step)
+passing a possibly modified operation-data
+Default keys in operation-data are:
+  * session-id: session id
+  * redis-key: session id as stored in redis
+  * data (for write operations)
+  * connection: instance of Jedis to contact Redis db</pre>
+  <a href="http://github.com/paraseba/rrss/blob/d866bfc12af7d0d7c5e64904ebd51d44c7148f7c/src/rrss/steps.clj#L3" id="var-source">Source</a>
+</div><div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps/create-delete-step">create-delete-step</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-delete-step fun)
+</pre>
+  <pre id="var-docstr">Create a Step using a given delete function, read and write will just pass forward
+to the next Step in the chain</pre>
+  <a href="http://github.com/paraseba/rrss/blob/d866bfc12af7d0d7c5e64904ebd51d44c7148f7c/src/rrss/steps.clj#L70" id="var-source">Source</a>
+</div><div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps/create-read-step">create-read-step</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-read-step fun)
+</pre>
+  <pre id="var-docstr">Create a Step using a given read function, write and delete will just pass forward
+to the next Step in the chain</pre>
+  <a href="http://github.com/paraseba/rrss/blob/d866bfc12af7d0d7c5e64904ebd51d44c7148f7c/src/rrss/steps.clj#L58" id="var-source">Source</a>
+</div><div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps/create-step">create-step</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-step {:keys (read write delete)})
+</pre>
+  <pre id="var-docstr">Creates a Step using the given functions as implementations. Valid keys in the
+argument map are read, write and delete. All functions must take two arguments:
+the operation data map, and the next-step in step chain. next-step is a function
+that takes only one argument: an operation data map</pre>
+  <a href="http://github.com/paraseba/rrss/blob/d866bfc12af7d0d7c5e64904ebd51d44c7148f7c/src/rrss/steps.clj#L38" id="var-source">Source</a>
+</div><div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps/create-step-chain">create-step-chain</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-step-chain steps)
+</pre>
+  <pre id="var-docstr">Chain a sequence of steps so they can be called with a single function call.
+Last step in the sequence will be called first, it will perform its operation and
+will pass control down the chain until the first Step in the given seq is reached</pre>
+  <a href="http://github.com/paraseba/rrss/blob/d866bfc12af7d0d7c5e64904ebd51d44c7148f7c/src/rrss/steps.clj#L28" id="var-source">Source</a>
+</div><div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps/create-write-step">create-write-step</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-write-step fun)
+</pre>
+  <pre id="var-docstr">Create a Step using a given write function, read and delete will just pass forward
+to the next Step in the chain</pre>
+  <a href="http://github.com/paraseba/rrss/blob/d866bfc12af7d0d7c5e64904ebd51d44c7148f7c/src/rrss/steps.clj#L64" id="var-source">Source</a>
+</div><div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps/on-delete">on-delete</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (on-delete step operation-data next-step)
+</pre>
+  <pre id="var-docstr">Perform delete operation</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps/on-read">on-read</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (on-read step operation-data next-step)
+</pre>
+  <pre id="var-docstr">Perform read operation</pre>
+  
+</div><div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps/on-write">on-write</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (on-write step operation-data next-step)
+</pre>
+  <pre id="var-docstr">Perform write operation</pre>
+  
+</div>
+<h2 id="namespace-name">rrss.steps.backend-step</h2>
+<pre id="namespace-docstr"></pre>
+<br />
+<div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps.backend-step/backend-step">backend-step</h2>
+  <span id="var-type">var</span><br />
+  <pre id="var-usage"></pre>
+  <pre id="var-docstr">Create a Step that handles Redis storage. It will save each session in a
+Redis hash</pre>
+  <a href="http://github.com/paraseba/rrss/blob/d866bfc12af7d0d7c5e64904ebd51d44c7148f7c/src/rrss/steps/backend_step.clj#L35" id="var-source">Source</a>
+</div>
+<h2 id="namespace-name">rrss.steps.expire-sessions-step</h2>
+<pre id="namespace-docstr"></pre>
+<br />
+<div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps.expire-sessions-step/expire-sessions-step">expire-sessions-step</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (expire-sessions-step)
+       (expire-sessions-step options)
+</pre>
+  <pre id="var-docstr">Create a Step that deletes sessions that have not been written lately
+See documentation for rrss.expiring-redis-store</pre>
+  <a href="http://github.com/paraseba/rrss/blob/c4e76e876d29a07f8c9f39bffef5f75665996da4/src/rrss/steps/expire_sessions_step.clj#L32" id="var-source">Source</a>
+</div>
+<h2 id="namespace-name">rrss.steps.mapkey-step</h2>
+<pre id="namespace-docstr"></pre>
+<br />
+<div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps.mapkey-step/create-mapkey-step">create-mapkey-step</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (create-mapkey-step key-mapper)
+</pre>
+  <pre id="var-docstr">Native Step handling the conversion of the session id to a key. key-mapper is a
+function that takes a string, the session id, and returns other string, the Redis
+key for that session.
+For write operations with nil session id, it will create a random id</pre>
+  <a href="http://github.com/paraseba/rrss/blob/d866bfc12af7d0d7c5e64904ebd51d44c7148f7c/src/rrss/steps/mapkey_step.clj#L18" id="var-source">Source</a>
+</div>
+<h2 id="namespace-name">rrss.steps.sessions-set-step</h2>
+<pre id="namespace-docstr"></pre>
+<br />
+<div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps.sessions-set-step/sessions-set-step">sessions-set-step</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (sessions-set-step)
+       (sessions-set-step options)
+</pre>
+  <pre id="var-docstr">Create a Step that saves all sessions keys in a Redis sorted set. The set score
+is the number of seconds between January 1, 1970, 00:00:00 GMT and the last write
+to the that session. The key name for the sorted set can be changed passing an
+:all-sessions-key option</pre>
+  <a href="http://github.com/paraseba/rrss/blob/c4e76e876d29a07f8c9f39bffef5f75665996da4/src/rrss/steps/sessions_set_step.clj#L8" id="var-source">Source</a>
+</div>
+<h2 id="namespace-name">rrss.steps.time-sessions-step</h2>
+<pre id="namespace-docstr"></pre>
+<br />
+<div id="var-entry">
+  <hr />
+  <h2 id="rrss.steps.time-sessions-step/time-sessions-step">time-sessions-step</h2>
+  <span id="var-type">function</span><br />
+  <pre id="var-usage">Usage: (time-sessions-step)
+       (time-sessions-step time-key-format)
+</pre>
+  <pre id="var-docstr">Create a step that adds an extra key-value for each session containing the last
+write time. Time is written as the number of seconds since January 1, 1970, 00:00:00 GMT.
+You can pass a string to change the default time key name, the string is used as input
+to a format call</pre>
+  <a href="http://github.com/paraseba/rrss/blob/c4e76e876d29a07f8c9f39bffef5f75665996da4/src/rrss/steps/time_sessions_step.clj#L5" id="var-source">Source</a>
+</div>
+<h2 id="namespace-name">rrss.store</h2>
+<pre id="namespace-docstr">Define a type for the Ring store</pre>
+<br />
+
+
+
+</div>
+              </div>
+            </div>
+          </div>
+	</div>
+	<div id="foot">
+	  <div style="text-align: center;" id="copyright">Copyright 2010 Sebastian Galkin</div>
+	</div>
+      </div>
+      <div id="DesignedBy">Logo &amp; site design by <a title="Visit Tom Hickey's website." href="http://www.tomhickey.com">Tom Hickey</a>.<br />
+      Clojure auto-documentation system by Tom Faulhaber.</div>
+    </div>
+    <!-- /AllContentContainer -->
+  </body>
+
+</html>
