@@ -25,13 +25,22 @@
 (defn- step-binder [f]
   #(partial f %))
 
-(defn create-step-chain [steps]
+(defn create-step-chain
+  "Chain a sequence of steps so they can be called with a single function call.
+  Last step in the sequence will be called first, it will perform its operation and
+  will pass control down the chain until the first Step in the given seq is reached"
+  [steps]
   (let [read   (chain-funs (map (step-binder on-read) steps))
         write  (chain-funs (map (step-binder on-write) steps))
         delete (chain-funs (map (step-binder on-delete) steps))]
     {:read read :write write :delete delete}))
 
-(defn create-step [{:keys (read write delete)}]
+(defn create-step
+  "Creates a Step using the given functions as implementations. Valid keys in the
+  argument map are read, write and delete. All functions must take two arguments:
+  the operation data map, and the next-step in step chain. next-step is a function
+  that takes only one argument: an operation data map"
+  [{:keys (read write delete)}]
   (reify Step
     (on-read [_ operation-data next-step]
       (if read
@@ -46,11 +55,20 @@
         (delete operation-data next-step)
         (next-step operation-data)))))
 
-(defn create-read-step [fun]
+(defn create-read-step
+  "Create a Step using a given read function, write and delete will just pass forward
+  to the next Step in the chain"
+  [fun]
   (create-step {:read fun}))
 
-(defn create-write-step [fun]
+(defn create-write-step
+  "Create a Step using a given write function, read and delete will just pass forward
+  to the next Step in the chain"
+  [fun]
   (create-step {:write fun}))
 
-(defn create-delete-step [fun]
+(defn create-delete-step
+  "Create a Step using a given delete function, read and write will just pass forward
+  to the next Step in the chain"
+  [fun]
   (create-step {:delete fun}))

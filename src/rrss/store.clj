@@ -2,7 +2,10 @@
   (:use [ring.middleware.session.store :only (SessionStore)]))
 
 
-(defn- with-connection [pool f]
+(defn- with-connection
+  "Get a connection from the given pool and run the function f passing the connection.
+  Finally, return the connection resource to the pool"
+  [pool f]
   (let [connection (.getResource pool)]
     (try
       (f connection)

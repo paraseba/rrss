@@ -8,12 +8,19 @@
     nil
     (key-mapper original)))
 
-(defn- random-key [] (str (UUID/randomUUID)))
+(defn- random-key
+  "Generate a random key UUID string"
+  [] (str (UUID/randomUUID)))
 
 (defn- assoc-mapped-key [key-mapper data]
   (assoc data :redis-key (make-key (:original-key data) key-mapper)))
 
-(defn create-mapkey-step [key-mapper]
+(defn create-mapkey-step
+  "Native Step handling the conversion of the session id to a key. key-mapper is a
+  function that takes a string, the session id, and returns other string, the Redis
+  key for that session.
+  For write operations with nil session id, it will create a random id"
+  [key-mapper]
   (reify Step
     (on-read [_ data next-step] (next-step (assoc-mapped-key key-mapper data)))
     (on-write [_ data next-step]
