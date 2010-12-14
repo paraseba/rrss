@@ -1,9 +1,18 @@
 (ns rrss.steps)
 
 (defprotocol Step
-  (on-read [step operation-data next-step])
-  (on-write [step operation-data next-step])
-  (on-delete [step operation-data next-step]))
+  "Perform store operations.
+  Information flows through the Steps chain in a map (operation-data) passed as
+  argument to operations. Each Step must call the following Step (next-step)
+  passing a possibly modified operation-data
+  Default keys in operation-data are:
+    * original-key: session id
+    * redis-key: session id as stored in redis
+    * data (for write operations)
+    * connection: instance of Jedis to contact Redis db"
+  (on-read [step operation-data next-step] "Perform read operation")
+  (on-write [step operation-data next-step] "Perform write operation")
+  (on-delete [step operation-data next-step] "Perform delete operation"))
 
 (defn- chain-funs [funs]
   (reduce
