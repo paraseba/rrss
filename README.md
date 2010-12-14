@@ -68,7 +68,12 @@ Read the documentation for more information on Steps.
 
 ### Installation
 
-Add [rrss/rrss "0.2.1-SNAPSHOT"] to your leiningen dependencies
+Add [rrss/rrss "0.2.1"] to your leiningen dependencies
+
+### Documentation
+
+You can check the autodoc generated documentation
+[here](http://paraseba.github.com/rrss/rrss-api.html)
 
 ### License
 
