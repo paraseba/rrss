@@ -86,8 +86,8 @@
     (is (> 1000 (millis-ago (.get jedis "sessions:foo:written-at"))))))
 
 (deftest test-expire-sessions-step
-  (let [store (redis-store {:steps [(sessions-set-step)
-                                    (expire-sessions-step {:resolution 1 :duration 1})]})]
+  (let [[step stop] (expire-sessions-step {:resolution 1 :duration 1 :with-stop true})
+        store (redis-store {:steps [(sessions-set-step) step]})]
     (Thread/sleep 1000)
     (write-session store "old" {"old" "foo"})
     (is (= {"old" "foo"} (read-session store "old")))
@@ -97,4 +97,5 @@
     (is (= {} (read-session store "old")))
     (Thread/sleep 2200)
     (is (= {} (read-session store "old")))
-    (is (= {} (read-session store "new")))))
+    (is (= {} (read-session store "new")))
+    (stop)))
