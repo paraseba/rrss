@@ -3,7 +3,6 @@
   Ring session store implemented on top of Redis key/value store"
   (:import org.apache.commons.pool.impl.GenericObjectPool$Config)
   (:import redis.clients.jedis.JedisPool)
-  (:require rrss.store)
   (:use [rrss.store :only (make-redis-store)])
   (:use [rrss.steps :only (create-step-chain)]
         (rrss.steps [backend-step :only (backend-step)]
