@@ -68,7 +68,7 @@ Read the documentation for more information on Steps.
 
 ### Installation
 
-Add [rrss/rrss "0.2.1"] to your leiningen dependencies
+Add [rrss/rrss "0.2.2"] to your leiningen dependencies
 
 ### Documentation
 
