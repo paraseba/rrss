@@ -33,3 +33,6 @@
     (with-connection pool
       (fn [connection]
         (:result ((:delete step-chain-map) (make-operation-map connection id)))))))
+
+(defn make-redis-store [pool step-chain-map]
+  (RedisStore. pool step-chain-map))

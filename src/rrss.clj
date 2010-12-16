@@ -4,7 +4,7 @@
   (:import org.apache.commons.pool.impl.GenericObjectPool$Config)
   (:import redis.clients.jedis.JedisPool)
   (:require rrss.store)
-  (:import rrss.store.RedisStore)
+  (:use [rrss.store :only (make-redis-store)])
   (:use [rrss.steps :only (create-step-chain)]
         (rrss.steps [backend-step :only (backend-step)]
                     [mapkey-step :only (create-mapkey-step)]
@@ -45,7 +45,7 @@
      (redis-store (JedisPool. (pool-config options) host port) options)))
   ([pool options]
    (let [{:keys (key-mapper steps)} (merge default-options options)]
-     (RedisStore. pool (create-step-chain (all-steps key-mapper steps))))))
+     (make-redis-store pool (create-step-chain (all-steps key-mapper steps))))))
 
 (defn expiring-redis-store
   "Create a session store with session expiration.
@@ -70,5 +70,5 @@
   ([pool options]
    (let [{:keys (key-mapper steps)} (merge default-options options)
          steps (concat [(sessions-set-step options) (expire-sessions-step options)] steps)]
-     (RedisStore. pool (create-step-chain (all-steps key-mapper steps))))))
+     (make-redis-store pool (create-step-chain (all-steps key-mapper steps))))))
 
