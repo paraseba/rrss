@@ -7,7 +7,7 @@
             :comments "same as Clojure"}
   :dependencies [[org.clojure/clojure "1.2.0"]
                  [ring/ring-core "0.3.5"]
-                 [redis.clients/jedis "1.5.0"]]
+                 [redis.clients/jedis "2.8.1"]]
   :dev-dependencies [[org.clojure/clojure-contrib "1.2.0"]
                      [autodoc "0.7.1" :exclusions [org.clojure/clojure
                                                    org.clojure/clojure-contrib]]]
