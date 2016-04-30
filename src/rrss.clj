@@ -1,7 +1,6 @@
 (ns rrss
   "Ring Redis Session Store
   Ring session store implemented on top of Redis key/value store"
-  (:import org.apache.commons.pool.impl.GenericObjectPool$Config)
   (:import redis.clients.jedis.JedisPool)
   (:use [rrss.store :only (make-redis-store)])
   (:use [rrss.steps :only (create-step-chain)]
@@ -18,11 +17,6 @@
    :port 6379
    :key-mapper (add-prefix "sessions:")
    :steps []})
-
-(defn- pool-config
-  "Create a default pool"
-  [options]
-  (org.apache.commons.pool.impl.GenericObjectPool$Config.))
 
 (defn- all-steps
   "Join extra steps with the native steps needed for all stores"
@@ -41,7 +35,7 @@
   ([] (redis-store {}))
   ([options]
    (let [{:keys (host port)} (merge default-options options)]
-     (redis-store (JedisPool. (pool-config options) host port) options)))
+     (redis-store (JedisPool. host port) options)))
   ([pool options]
    (let [{:keys (key-mapper steps)} (merge default-options options)]
      (make-redis-store pool (create-step-chain (all-steps key-mapper steps))))))
@@ -64,7 +58,7 @@
   ([] (expiring-redis-store {}))
   ([options]
    (let [{:keys (host port)} (merge default-options options)
-         pool (JedisPool. (pool-config options) host port)]
+         pool (JedisPool. host port)]
      (expiring-redis-store pool options)))
   ([pool options]
    (let [{:keys (key-mapper steps)} (merge default-options options)
