@@ -18,7 +18,8 @@
 
 (deftest test-construction
   (is (redis-store))
-  (is (redis-store {:port 6378 :host "example.com"})))
+  (is (redis-store {:port 6378 :host "example.com"}))
+  (is (redis-store {:uri "redis://example.com:6378"})))
 
 (declare ^:dynamic store)
 

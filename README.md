@@ -23,7 +23,7 @@ rrss is a drop-in replacement for Ring native stores:
 You can pass options such as:
 
     (def store
-      (redis-store {:host "localhost" :port 6379}))
+      (redis-store {:uri "redis://localhost:6379"}))
 
 This will create a default store, connecting a Redis server in the given host
 and port. Every sessions will be saved under a key of the form `sessions:ID`

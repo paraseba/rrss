@@ -19,7 +19,7 @@
         max-score (double (- now duration-ms))
         old-keys (.zrangeByScore connection all-sessions-key 0.0 max-score)]
     (doseq [key old-keys]
-      (.zrem connection all-sessions-key key)
+      (.zrem connection all-sessions-key (into-array String [key]))
       (.del connection (into-array String [key])))))
 
 
