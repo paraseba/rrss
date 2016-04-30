@@ -2,6 +2,7 @@
   "Ring Redis Session Store
   Ring session store implemented on top of Redis key/value store"
   (:import redis.clients.jedis.JedisPool)
+  (:import java.net.URI)
   (:use [rrss.store :only (make-redis-store)])
   (:use [rrss.steps :only (create-step-chain)]
         (rrss.steps [backend-step :only (backend-step)]
@@ -23,9 +24,16 @@
   [key-mapper steps]
   (concat [(create-mapkey-step key-mapper) backend-step] steps))
 
+(defn- create-pool
+  "Create a new Jedis pool from an uri or a host and port. The uri is prefered"
+  [uri host port]
+  (let [uri-with-fallback (or uri (str "redis://" host ":" port))]
+    (JedisPool. (URI/create uri-with-fallback))))
+
 (defn redis-store
   "Create the default session store.
   Valid options are:
+    :uri Redis URI like redis://localhost:6379
     :host redis server URL string
     :port redis server port
     :key-mapper a function that takes a key string and returns the key that
@@ -34,8 +42,8 @@
 
   ([] (redis-store {}))
   ([options]
-   (let [{:keys (host port)} (merge default-options options)]
-     (redis-store (JedisPool. host port) options)))
+   (let [{:keys (host port uri)} (merge default-options options)]
+     (redis-store (create-pool uri host port) options)))
   ([pool options]
    (let [{:keys (key-mapper steps)} (merge default-options options)]
      (make-redis-store pool (create-step-chain (all-steps key-mapper steps))))))
@@ -45,6 +53,7 @@
   Sessions are checked in a background thread an deleted when the last write
   is older than a certain value.
   Valid options are:
+    :uri Redis URI like redis://localhost:6379
     :host redis server URL string
     :port redis server port
     :duration number of seconds after which a session can be deleted. Defaults
@@ -57,8 +66,8 @@
 
   ([] (expiring-redis-store {}))
   ([options]
-   (let [{:keys (host port)} (merge default-options options)
-         pool (JedisPool. host port)]
+   (let [{:keys (host port uri)} (merge default-options options)
+         pool (create-pool uri host port)]
      (expiring-redis-store pool options)))
   ([pool options]
    (let [{:keys (key-mapper steps)} (merge default-options options)
